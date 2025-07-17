@@ -25,7 +25,6 @@ extension Collection where Element == Lexer.Token {
     }
 }
 
-@available(iOS 16.0, *)
 class CucumberTests: XCTestCase {
     override func setUpWithError() throws {
         Cucumber.shared.reset()

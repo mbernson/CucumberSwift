@@ -257,8 +257,6 @@ import CucumberSwiftExpressions
                              file: file)
     }
 
-#if compiler(>=5.7) && canImport(_StringProcessing)
-    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
     func attachClosureToSteps<Output>(keyword: Step.Keyword? = nil,
                                       regex: Regex<Output>,
                                       callback: @escaping ((Regex<Output>.Match, Step) throws -> Void),
@@ -270,7 +268,6 @@ import CucumberSwiftExpressions
                              line: line,
                              file: file)
     }
-#endif
 
     func attachClosureToSteps(keyword: Step.Keyword? = nil,
                               regex: String,

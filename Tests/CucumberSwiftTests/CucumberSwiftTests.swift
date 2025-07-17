@@ -21,6 +21,9 @@ class CucumberSwiftTests: XCTestCase {
     }
 
     func testStepsGetCallbacksAttachedCorrectly() {
+        #if SWIFT_PACKAGE
+        let bundle = Bundle.module
+        #else
         let bundle: Bundle = {
             #if canImport(CucumberSwift_ObjC)
             // swiftlint:disable:next force_unwrapping
@@ -29,6 +32,7 @@ class CucumberSwiftTests: XCTestCase {
             return Bundle(for: CucumberSwiftTests.self)
             #endif
         }()
+        #endif
 
         Cucumber.shared.readFromFeaturesFolder(in: bundle)
         var givenCalled = false
@@ -81,8 +85,6 @@ class CucumberSwiftTests: XCTestCase {
         XCTAssertTrue(matchAllCalled)
     }
 
-#if swift(>=5.7)
-    @available(iOS 16.0, *)
     func testStepsGetCallbacksAttachedCorrectly_WithRegexLiterals() {
         let featureFile: String =
         """
@@ -102,7 +104,7 @@ class CucumberSwiftTests: XCTestCase {
 
         Cucumber.shared.parseIntoFeatures(featureFile)
         var givenCalled = false
-        Given(/^S(.)mE (?:precondition)$/.ignoresCase()) { match, _  in
+        Given(#/^S(.)mE (?:precondition)$/#.ignoresCase()) { match, _  in
             givenCalled = true
             XCTAssertEqual(match.1, "o")
         }
@@ -110,7 +112,7 @@ class CucumberSwiftTests: XCTestCase {
         XCTAssertTrue(givenCalled)
 
         var whenCalled = false
-        When(/^some (\w+) by the actor$/) { match, _ in
+        When(#/^some (\w+) by the actor$/#) { match, _ in
             whenCalled = true
             XCTAssertEqual(match.1, "action")
         }
@@ -118,7 +120,7 @@ class CucumberSwiftTests: XCTestCase {
         XCTAssertTrue(whenCalled)
 
         var thenCalled = false
-        Then(/^some (\w+) outcome is achieved$/) { match, _ in
+        Then(#/^some (\w+) outcome is achieved$/#) { match, _ in
             thenCalled = true
             XCTAssertEqual(match.1, "testable")
         }
@@ -126,7 +128,7 @@ class CucumberSwiftTests: XCTestCase {
         XCTAssertTrue(thenCalled)
 
         var andCalled = false
-        Given(/^some (\w+) precondition$/) { match, _ in
+        Given(#/^some (\w+) precondition$/#) { match, _ in
             andCalled = true
             XCTAssertEqual(match.1, "other")
         }
@@ -134,13 +136,12 @@ class CucumberSwiftTests: XCTestCase {
         XCTAssertTrue(andCalled)
 
         var matchAllCalled = false
-        MatchAll(/(.*?)/) { _, _ in
+        MatchAll(#/(.*?)/#) { _, _ in
             matchAllCalled = true
         }
         Cucumber.shared.executeFeatures()
         XCTAssertTrue(matchAllCalled)
     }
-#endif
 
     func testExecuteFirstStep_WithoutParameter() {
         let featureFile: String =
@@ -304,8 +305,6 @@ class CucumberSwiftTests: XCTestCase {
         XCTAssertEqual(whenCalledCount, 2)
     }
 
-#if swift(>=5.7)
-    @available(iOS 16.0, *)
     func testExecuteFirstStep_WithoutParameterWithRegexLiteral() {
         let featureFile: String =
         """
@@ -318,11 +317,11 @@ class CucumberSwiftTests: XCTestCase {
 
         Cucumber.shared.parseIntoFeatures(featureFile)
         var givenCalledCount = 0
-        Given(/^some precondition$/) { _, _  in
+        Given(#/^some precondition$/#) { _, _  in
             givenCalledCount += 1
         }
 
-        Given(/^some other precondition$/) { _, _  in
+        Given(#/^some other precondition$/#) { _, _  in
             ExecuteFirstStep(matching: "some precondition")
         }
         Cucumber.shared.executeFeatures()
@@ -342,11 +341,11 @@ class CucumberSwiftTests: XCTestCase {
 
         Cucumber.shared.parseIntoFeatures(featureFile)
         var givenParameters = [String]()
-        Given(/some precondition with (.*)/) { match, _  in
+        Given(#/some precondition with (.*)/#) { match, _  in
             givenParameters.append("\(match.1)")
         }
 
-        Given(/some other precondition/) { _, _  in
+        Given(#/some other precondition/#) { _, _  in
             ExecuteFirstStep(matching: "some precondition with parameter2")
         }
         Cucumber.shared.executeFeatures()
@@ -354,7 +353,6 @@ class CucumberSwiftTests: XCTestCase {
         XCTAssertEqual(givenParameters[0], "parameter1")
         XCTAssertEqual(givenParameters[1], "parameter2")
     }
-#endif
 
     func testStepsGetCallbacksAttachedCorrectly_WithCucumberExpressions() {
         let featureFile: String =
@@ -415,6 +413,9 @@ class CucumberSwiftTests: XCTestCase {
     }
 
     func testGivenWorksForChainedAnd() {
+        #if SWIFT_PACKAGE
+        let bundle = Bundle.module
+        #else
         let bundle: Bundle = {
             #if canImport(CucumberSwift_ObjC)
             // swiftlint:disable:next force_unwrapping
@@ -423,6 +424,7 @@ class CucumberSwiftTests: XCTestCase {
             return Bundle(for: CucumberSwiftTests.self)
             #endif
         }()
+        #endif
 
         Cucumber.shared.readFromFeaturesFolder(in: bundle)
         var givenCalled = false
@@ -483,7 +485,11 @@ class CucumberSwiftTests: XCTestCase {
 
 extension Cucumber: StepImplementation {
     public var bundle: Bundle {
-        Bundle(for: CucumberSwiftTests.self)
+        #if SWIFT_PACKAGE
+        return Bundle.module
+        #else
+        return Bundle(for: CucumberSwiftTests.self)
+        #endif
     }
     static var shouldRunWith: (Scenario?, [String]) -> Bool = { _, _ in true }
     public func setupSteps() { }

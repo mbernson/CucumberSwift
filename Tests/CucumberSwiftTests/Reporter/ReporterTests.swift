@@ -9,7 +9,10 @@
 import Foundation
 import XCTest
 @testable import CucumberSwift
+
+#if(canImport(JSONSchema))
 import JSONSchema
+#endif
 
 class ReporterTests: XCTestCase {
     override func setUpWithError() throws {
@@ -134,6 +137,7 @@ class ReporterTests: XCTestCase {
         XCTAssertEqual(result?["status"] as? String, "pending")
     }
 
+    #if(canImport(JSONSchema))
     func testReporterJsonConformsToCucumberJsonSchema() throws {
         let path = URL(fileURLWithPath: #file)
             .deletingLastPathComponent()
@@ -167,6 +171,7 @@ class ReporterTests: XCTestCase {
             XCTFail("Failure by encode of json schema")
         }
     }
+    #endif
 }
 
 extension Feature {

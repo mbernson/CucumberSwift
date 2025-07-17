@@ -59,8 +59,12 @@ extension CucumberTest {
 
 extension Cucumber: StepImplementation {
     public var bundle: Bundle {
+        #if SWIFT_PACKAGE
+        return Bundle.module
+        #else
         class TestDiscovery: CucumberTest { }
         return Bundle(for: TestDiscovery.self)
+        #endif
     }
 
     public func setupSteps() {
